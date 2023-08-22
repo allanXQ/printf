@@ -1,52 +1,80 @@
-#include <stdio.h>
 #include <stdarg.h>
+#include "holberton.h"
+#include <stdio.h>
 
-int _printf(const char *format, ...) {
-    va_list args;
-    int printed_chars = 0;
-    va_start(args, format);
+/**
+  * _printf - produces output according to a format.
+  * @format: a character string.
+  * Return: number of characters printed(
+  * excluding the null terminator)
+  */
 
-    for (const char *traverse = format; *traverse != '\0'; traverse++) {
-        while (*traverse != '%' && *traverse != '\0') {
-            putchar(*traverse);
-            printed_chars++;
-            traverse++;
-        }
+int _printf(const char *format, ...)
+{
+	int count;
+	int total = 0;
+	va_list args;
+	int flag = 0;
 
-        if (*traverse == '\0') break;
+	if (format == NULL)
+		return (0);
 
-        // Handle conversion specifiers
-        switch (*++traverse) {
-            case 'c': {
-                char c = va_arg(args, int); // char is promoted to int in va_arg
-                putchar(c);
-                printed_chars++;
-                break;
-            }
-            case 's': {
-                char *str = va_arg(args, char *);
-                for (int i = 0; str[i] != '\0'; i++) {
-                    putchar(str[i]);
-                    printed_chars++;
-                }
-                break;
-            }
-            case '%': {
-                putchar('%');
-                printed_chars++;
-                break;
-            }
-            default: {
-                // Handle unknown specifiers by just printing them as-is
-                putchar('%');
-                putchar(*traverse);
-                printed_chars += 2;
-                break;
-            }
-        }
-    }
-
-    va_end(args);
-    return printed_chars;
+	va_start(args, format);
+	for (count = 0; *(format + count) != '\0'; count++)
+	{
+		if (format[count] == '%')
+		{
+			flag = 1;
+		}
+		else if (flag == 1)
+		{
+			flag = 0;
+			switch (format[count])
+			{
+				case 'c':
+					_putchar(va_arg(args, int));
+					total += 1;
+					break;
+				case 's':
+					total += _print_str(va_arg(args, char *));
+					break;
+				case '%':
+					_putchar('%');
+					total += 1;
+					break;
+				case 'd':
+					total += _print_int((long)(va_arg(args, int)));
+					break;
+				case 'i':
+					total += _print_int((long)(va_arg(args, int)));
+					break;
+				case 'b':
+					total += to_Binary(va_arg(args, int));
+					break;
+				case 'u':
+					total += _print_int(va_arg(args, unsigned int));
+					break;
+				case 'o':
+					total += to_Octal(va_arg(args, int));
+					break;
+				case 'x':
+					total += to_Hexa(va_arg(args, int));
+					break;
+				case 'X':
+					total += to_Hexa(va_arg(args, int));
+					break;
+				default:
+					_putchar('%');
+					_putchar(format[count]);
+					total += 2;
+			}
+		}
+		else
+		{
+			_putchar(format[count]);
+			total += 1;
+		}
+	}
+	va_end(args);
+	return (total);
 }
-
